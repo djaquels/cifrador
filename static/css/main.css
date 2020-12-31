@@ -23,3 +23,6 @@ input {
 span.badge.new{
     background:red !important;
 }
+textarea{
+    color:white !important;
+}
