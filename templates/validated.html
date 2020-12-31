@@ -4,6 +4,7 @@
 <title>Cifrador</title>
 <script src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
 <link href="{{ url_for('static', filename='css/materialize.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 <style>
     textarea {
         height:500px;
@@ -17,13 +18,17 @@
           <a href="" class="brand-logo">Cifrado Asimetrico</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="/">Registro Usuarios</a></li>
-            <li><a href="/validate">Validacion Usuarios <span class="new badge">4</span></a></li>
+            <li><a href="/validate">Validacion Usuarios <span class="new badge">{{total}}</span></a></li>
           </ul>
         </div>
 </nav>
 <div class="container">
-    <h1> Llaves generadas </h1>
-       <h1>Usuario validado</h1>
+    <h1> Resultado validación: </h1>
+    {% if status == True %}
+    <h1>{{mensaje}}</h1>
+    {% else %}
+    <h1>{{mensaje}}.</h1>
+    {% endif %}
 </div>
 </body>
 </html>  

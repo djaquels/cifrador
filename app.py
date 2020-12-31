@@ -7,17 +7,37 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 import pem
+import os
 
 from database.repositorio import Repositorio
 
 app = Flask(__name__)
 CORS(app)
 
+def existe_usuario(user):
+    rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+    query = "SELECT count(*) FROM users where username = %s "
+    rep.cursor.execute(query, (user,))
+    total = rep.cursor.fetchone()[0]
+    print("Existe usuario:".format(total))
+    if int(total) == 0:
+        return False
+    else:
+        return True
+
+def get_usuarios():
+    rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+    query = "SELECT count(*) FROM users "
+    rep.cursor.execute(query)
+    total = rep.cursor.fetchone()[0]
+    return total
 @app.route('/',methods=['POST','GET','OPTIONS'])
 def index():
-    return render_template('index.html')
+    total = get_usuarios()
+    return render_template('index.html',total=total)
 @app.route('/generated',methods=['POST','GET','OPTIONS'])
 def generate_keys():
+    total = get_usuarios()
     if request.method == 'POST':
         user = request.form['user']
         passphrase = request.form['passphrase']
@@ -38,36 +58,51 @@ def generate_keys():
         b = open("./public_key.rsa",'r')
         pk = a.read()
         public = b.read()
+        a.close()
+        b.close()
         rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
         query = "INSERT INTO users(username,public_key,passphrase) VALUES(%s,%s,%s)"
         rep.cursor.execute(query,(user,public,encrypted_text))
         rep.connection.commit()
         rep.disconnect()
         print(encrypted_text)
-        return render_template('generated.html',private=pk,public=public,passphrase=encrypted_text)
+        os.remove("./private_key.rsa") 
+        os.remove("./public_key.rsa") 
+        return render_template('generated.html',private=pk,public=public,passphrase=encrypted_text,total=total)
 @app.route('/validate',methods=['POST','GET','OPTIONS'])
 def validate():
+    status = False
+    mensaje = ""
+    total = get_usuarios()
     if request.method == 'POST':
+        user = request.form['user']
+        if not existe_usuario(user):
+            return render_template('validated.html',status=False, mensaje="No existe el usuario",total=total)
         try:
             rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
             #decifrando
             user = request.form['user']
-            private_key = request.form['private_key']
-            print(user)
+            private_key = request.files['private_key']
+            print("saving file: {}".format(private_key))
+            filename = private_key.filename
+            private_key.save(os.path.join("./storage/", filename))
             query = "SELECT passphrase FROM users where username = %s "
             rep.cursor.execute(query, (user,))
             passphrase = rep.cursor.fetchone()[0]
             print('your encrypted_text is : {}'.format(passphrase))
             print("importing key")
-            pk = open("D:\MAESTROS\Cifrado\private_key.rsa","rb")
+            pk = open("./storage/{}".format(filename),"rb")
             rsa_private_key = RSA.importKey(pk.read())
             print("key imported")
             rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
             decrypted_text = rsa_private_key.decrypt(passphrase)
             print('your decrypted_text is : {}'.format(decrypted_text))
+            status = True
+            mensaje = "Usuario validado con éxito, las llaves coinciden."
         except  Exception as e:
-            print(e)
-        return render_template('validated.html')
-    return render_template('validate.html')
+            status = False
+            mensaje = "No coinciden las llaves, no se valido el usuario."
+        return render_template('validated.html',status=status,mensaje=mensaje,total=total)
+    return render_template('validate.html',total=total)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8057)
