@@ -1,0 +1,15 @@
+create table users
+(
+	"user" varchar(500),
+	public_key text,
+	phassphrase text,
+	id serial not null
+		constraint users_pk
+			primary key
+);
+
+create unique index users_user_uindex
+	on users ("user");
+
+
+
