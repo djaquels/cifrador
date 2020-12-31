@@ -14,7 +14,7 @@
 <body>
 <nav>
         <div class="nav-wrapper">
-          <a href="" class="brand-logo">Cifrado Asimetrico</a>
+          <a href="/" class="brand-logo">Cifrado Asimetrico</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="/">Registro Usuarios</a></li>
             <li><a href="/validate">Validacion Usuarios <span class="new badge">4</span></a></li>
@@ -27,8 +27,13 @@
         <p> Descarga tu llave privada en un lugar seguro.</p>
         <p> Descarga o Copia el siguiente texto en un archivo.</p>
         <div id="box">
+            <p>Privada: </p>
             <textarea class="content" height="200">
                 {{private}}
+            </textarea>
+            <p> Publica: </p>
+            <textarea class="content">
+                {{public}}
             </textarea>
         </div>
     </div>
