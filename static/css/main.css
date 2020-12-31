@@ -1,0 +1,25 @@
+
+footer{
+    position:absolute;
+    bottom:0px;
+    text-align: center;
+    width:100%;
+}
+.brand-logo{
+    margin-left: 10px;
+}
+nav {
+    background-color:black !important ;
+}
+body {
+    background-image: url('/static/background.jpg');
+    background-size: cover;
+    color:aliceblue !important;
+}
+input {
+    color:white;
+    font-size:24px; 
+}
+span.badge.new{
+    background:red !important;
+}
