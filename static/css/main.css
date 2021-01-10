@@ -24,5 +24,18 @@ span.badge.new{
     background:red !important;
 }
 textarea{
-    color:white !important;
+    color:black !important;
+    background: white !important;
+}
+table {
+    background: white !important;
+    color: black !important;
+    margin-bottom: 10px !important;
+    padding-left: 50px !important;
+}
+th {
+    text-align: center;
+}
+td{
+    text-align:justify;
 }

@@ -1,3 +1,5 @@
+create database cypher;
+
 create table users
 (
 	username varchar(500),
@@ -10,6 +12,3 @@ create table users
 
 create unique index users_user_uindex
 	on users (username);
-
-
-

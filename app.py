@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 def existe_usuario(user):
-    rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+    rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
     query = "SELECT count(*) FROM users where username = %s "
     rep.cursor.execute(query, (user,))
     total = rep.cursor.fetchone()[0]
@@ -26,7 +26,7 @@ def existe_usuario(user):
         return True
 
 def get_usuarios():
-    rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+    rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
     query = "SELECT count(*) FROM users "
     rep.cursor.execute(query)
     total = rep.cursor.fetchone()[0]
@@ -35,13 +35,26 @@ def get_usuarios():
 def index():
     total = get_usuarios()
     return render_template('index.html',total=total)
+@app.route('/users',methods=['GET','OPTIONS'])
+def users_list():
+    try:
+        print("reading users table")
+        rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
+        query = "SELECT username,public_key  FROM users  "
+        rep.cursor.execute(query)
+        data = [ x for x in rep.cursor]
+        print(data)
+        return render_template('users.html',data=data)
+    except  Exception as e:
+        print("error papu")
+        return  render_template('users.html',data={})
 @app.route('/generated',methods=['POST','GET','OPTIONS'])
 def generate_keys():
     total = get_usuarios()
     if request.method == 'POST':
         user = request.form['user']
         passphrase = request.form['passphrase']
-        key = RSA.generate(2048)
+        key = RSA.generate(2048) # investigar unidad de bytes
         private_key = key.export_key('PEM')
         public_key = key.publickey().exportKey('PEM')
         seed = str.encode(passphrase)
@@ -60,7 +73,7 @@ def generate_keys():
         public = b.read()
         a.close()
         b.close()
-        rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+        rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
         query = "INSERT INTO users(username,public_key,passphrase) VALUES(%s,%s,%s)"
         rep.cursor.execute(query,(user,public,encrypted_text))
         rep.connection.commit()
@@ -79,7 +92,7 @@ def validate():
         if not existe_usuario(user):
             return render_template('validated.html',status=False, mensaje="No existe el usuario",total=total)
         try:
-            rep = Repositorio("postgres", "*sametsiS1", "127.0.0.1", "5432", "cypher")
+            rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
             #decifrando
             user = request.form['user']
             private_key = request.files['private_key']
