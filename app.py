@@ -98,9 +98,9 @@ def generate_keys():
 # Metodo que apartir de un archivo y el nombre usuario valida la identidad del usuario.
 @app.route('/validate',methods=['POST','GET','OPTIONS'])
 def validate():
-    status = False
-    mensaje = ""
-    total = get_usuarios()
+    status = False # Estado de la validación, True si las llaves coinciden en caso contrario False
+    mensaje = "" # Para el usuario
+    total = get_usuarios() # Auxiliar para usuarios registrados
     if request.method == 'POST':
         user = request.form['user']
         if not existe_usuario(user):
@@ -108,6 +108,8 @@ def validate():
         try:
             rep = Repositorio("postgres", "postgres", "127.0.0.1", "5432", "cypher")
             #decifrando
+            # primero se obtiene los parametros enviados por el usuario.
+            # 
             user = request.form['user']
             private_key = request.files['private_key']
             print("saving file: {}".format(private_key))
