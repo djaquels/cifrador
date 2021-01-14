@@ -131,6 +131,7 @@ def validate():
             mensaje = "Usuario validado con éxito, las llaves coinciden."
         except  Exception as e:
             status = False
+            pk.close()
             mensaje = "No coinciden las llaves, no se valido el usuario."
         os.remove("./storage/{}".format(filename)) 
         return render_template('validated.html',status=status,mensaje=mensaje,total=total)
